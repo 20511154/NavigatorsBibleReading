@@ -8,13 +8,13 @@ from app.db import get_db
 from app.models import User, UserEvent
 from app.config import settings
 from app.logic import (
-    get_next_reading, get_user_stats, format_reading_text,
+    get_next_reading, get_user_stats,
     did_read_today, was_nudged_today, record_nudge,
     get_user_timezone, get_user_local_now, is_time_for_daily_card,
     is_time_for_nudge, was_daily_card_sent_today, mark_daily_card_sent_today,
     mark_nudge_sent_today
 )
-from app.messages import get_nudge_message
+from app.messages import get_nudge_message, format_reading_text
 
 router = APIRouter()
 
