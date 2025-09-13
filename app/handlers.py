@@ -251,8 +251,8 @@ async def handle_callback_query(callback_query: CallbackQuery, db: Session, bot:
 def register_handlers(dp: Dispatcher):
     """Register all handlers with the dispatcher"""
     
-    @dp.message_handler(commands=['start'])
-    async def start_handler(message: types.Message):
+    # Wrapper functions that handle database sessions
+    async def start_wrapper(message: types.Message):
         from app.db import SessionLocal
         db = SessionLocal()
         try:
@@ -260,12 +260,10 @@ def register_handlers(dp: Dispatcher):
         finally:
             db.close()
     
-    @dp.message_handler(commands=['help'])
-    async def help_handler(message: types.Message):
+    async def help_wrapper(message: types.Message):
         await help_command(message)
     
-    @dp.message_handler(commands=['settz'])
-    async def settz_handler(message: types.Message):
+    async def settz_wrapper(message: types.Message):
         from app.db import SessionLocal
         db = SessionLocal()
         try:
@@ -273,8 +271,7 @@ def register_handlers(dp: Dispatcher):
         finally:
             db.close()
     
-    @dp.message_handler(commands=['today'])
-    async def today_handler(message: types.Message):
+    async def today_wrapper(message: types.Message):
         from app.db import SessionLocal
         db = SessionLocal()
         try:
@@ -282,8 +279,7 @@ def register_handlers(dp: Dispatcher):
         finally:
             db.close()
     
-    @dp.message_handler(commands=['next'])
-    async def next_handler(message: types.Message):
+    async def next_wrapper(message: types.Message):
         from app.db import SessionLocal
         db = SessionLocal()
         try:
@@ -291,8 +287,7 @@ def register_handlers(dp: Dispatcher):
         finally:
             db.close()
     
-    @dp.message_handler(commands=['stats'])
-    async def stats_handler(message: types.Message):
+    async def stats_wrapper(message: types.Message):
         from app.db import SessionLocal
         db = SessionLocal()
         try:
@@ -300,11 +295,21 @@ def register_handlers(dp: Dispatcher):
         finally:
             db.close()
     
-    @dp.callback_query_handler()
-    async def callback_handler(callback_query: CallbackQuery):
+    async def callback_wrapper(callback_query: types.CallbackQuery):
         from app.db import SessionLocal
         db = SessionLocal()
         try:
             await handle_callback_query(callback_query, db, dp.bot)
         finally:
             db.close()
+    
+    # Register message handlers
+    dp.message.register(start_wrapper, types.Message, commands=['start'])
+    dp.message.register(help_wrapper, types.Message, commands=['help'])
+    dp.message.register(settz_wrapper, types.Message, commands=['settz'])
+    dp.message.register(today_wrapper, types.Message, commands=['today'])
+    dp.message.register(next_wrapper, types.Message, commands=['next'])
+    dp.message.register(stats_wrapper, types.Message, commands=['stats'])
+    
+    # Register callback query handler
+    dp.callback_query.register(callback_wrapper, types.CallbackQuery)
